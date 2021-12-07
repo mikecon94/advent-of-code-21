@@ -28,7 +28,7 @@ def printGrid(grid):
             print(grid.get((x,y), 0), end = "")
         print()
 
-def populateCounters(grid):
+def populateCounters(grid, includeDiagonals=False):
     for line in lines:
         # Horizontal Lines
         if(line["y1"] == line["y2"]): 
@@ -52,6 +52,22 @@ def populateCounters(grid):
                 endY = line["y1"]
             for y in range(startY, endY + 1):
                 grid[(x, y)] = grid.get((x,y), 0) + 1
+        # Diagonals
+        elif(includeDiagonals):
+            if (line["x1"] > line["x2"]):
+                xDirection = -1
+            else:
+                xDirection = 1
+            
+            if (line["y1"] > line["y2"]):
+                yDirection = -1
+            else:
+                yDirection = 1
+            for step in range(abs(line["x1"] - line["x2"]) + 1):
+                xStep = step * xDirection
+                yStep = step * yDirection
+                currentPoint = (line["x1"] + xStep, line["y1"] + yStep)
+                grid[currentPoint] = grid.get(currentPoint, 0) + 1
 
 def countOverlaps(grid):
     count = 0
@@ -67,7 +83,10 @@ def part1():
     return countOverlaps(grid)
 
 def part2():
-    return 0
+    grid = dict()
+    populateCounters(grid, True)
+    # printGrid(grid)
+    return countOverlaps(grid)
 
 print("PART 1:", part1())
 print("PART 2:" , part2())
