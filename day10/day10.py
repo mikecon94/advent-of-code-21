@@ -1,3 +1,5 @@
+import statistics
+
 f = open("input", "r")
 
 lines = []
@@ -38,11 +40,18 @@ closingBrackets = {
                     '<' : '>'
                     }
 
+autoCompletePoints = {
+                        ')': 1,
+                        ']': 2,
+                        '}': 3,
+                        '>': 4
+                     }
+
 # Stop at the first incorrect closing character on each corrupted line.
 def part1():
-    stack = []
     illegalChars = []
     for line in lines:
+        stack = []
         for char in line:
             if (char == '('
                 or char == '{'
@@ -60,7 +69,30 @@ def part1():
     return totalPoints
 
 def part2():
-    return 0
+    completionStrings = []
+    totalScores = []
+    for line in lines:
+        completionString = ''
+        illegalLine = False
+        stack = []
+        score = 0
+        for char in line:
+            if (char == '('
+                or char == '{'
+                or char == '['
+                or char == '<'):
+                stack.append(char)
+            else:
+                lastChar = stack.pop()
+                if (char != closingBrackets[lastChar]):
+                    illegalLine = True
+        if (not illegalLine):
+            # Loop until the stack is empty
+            while stack:
+                score *= 5
+                score += autoCompletePoints[closingBrackets[stack.pop()]]
+            totalScores.append(score)
+    return statistics.median(totalScores)
 
 print("PART 1:", part1())
 print("PART 2:", part2())
