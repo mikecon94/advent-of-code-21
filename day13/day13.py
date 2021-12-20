@@ -16,15 +16,15 @@ for line in f.readlines():
         coordinates[(int(x), int(y))] = True
 
 # These are the largest values a coordinate can have based on the last x & y folds.
-xLength = 40
-yLength = 6
+xLength = 197
+yLength = 7
 def printGrid():
     for y in range(0, yLength + 1):
         for x in range(0, xLength + 1):
             if (coordinates.get((x, y), False)):
                 print("#", end='')
             else:
-                print(".", end='')
+                print(" ", end='')
         print("")
 
 def foldUp(foldLine):
