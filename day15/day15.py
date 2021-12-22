@@ -1,4 +1,4 @@
-import copy
+import heapq
 from os import X_OK
 f = open("input", "r")
 
@@ -79,57 +79,35 @@ def getAllRiskLevels(noOfTiles):
             allRiskLevels[(x, y)] = riskLevel
     return allRiskLevels
 
-def getShortestUnvisitedNode(distances, unvisited):
-    lowestValue = float('inf')
-    bestPoint = (0,0)
-    for point in unvisited:
-        if (distances[point] < lowestValue):
-            lowestValue = distances[point]
-            bestPoint = point
-    return bestPoint
-
+neighbouringNodes = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+# Dijkstra implementation using heapq / Priority Queue
 def dijkstra(grid, start, end):
+    priorityQueue = []
     distances = dict()
     for coordinate in grid:
         distances[coordinate] = float('inf')
+        heapq.heappush(priorityQueue, (float('inf'), coordinate))
     distances[start] = 0
     unvisited = set(grid.keys())
     
-    currentNode = start
+    currentNode = heapq.heappop(priorityQueue)[1]
     # Loop until the end node has been visited
     while (end in unvisited):
         # Consider unvisited neighbors and calculate their tentative distances from current node.
-        # UP
-        up = (currentNode[0], currentNode[1] - 1)
-        # We don't need to valid borders as it won't be in unvisited if it's out of the grid.
-        if(up in unvisited):
-            tentativeDistance = distances[currentNode] + grid[up]
-            # Compare distannce to current assigned value
-            # If lower then assign that distance.
-            if(tentativeDistance < distances[up]):
-                distances[up] = tentativeDistance
-        # DOWN
-        down = (currentNode[0], currentNode[1] + 1)
-        if(down in unvisited):
-            tentativeDistance = distances[currentNode] + grid[down]
-            if(tentativeDistance < distances[down]):
-                distances[down] = tentativeDistance
-        # LEFT
-        left = (currentNode[0] - 1, currentNode[1])
-        if(left in unvisited):
-            tentativeDistance = distances[currentNode] + grid[left]
-            if(tentativeDistance < distances[left]):
-                distances[left] = tentativeDistance
-        # RIGHT
-        right = (currentNode[0] + 1, currentNode[1])
-        if(right in unvisited):
-            tentativeDistance = distances[currentNode] + grid[right]
-            if(tentativeDistance < distances[right]):
-                distances[right] = tentativeDistance
+        for offset in neighbouringNodes:
+            neighbour = (currentNode[0] + offset[0], currentNode[1] + offset[1])
+            if (neighbour in unvisited):
+                tentativeDistance = distances[currentNode] + grid[neighbour]
+                # Compare distannce to current assigned value
+                # If lower then assign that distance.
+                if(tentativeDistance < distances[neighbour]):
+                    distances[neighbour] = tentativeDistance
+                    heapq.heappush(priorityQueue, (tentativeDistance, neighbour))
 
         # Remove Current Node from Unvisited
         unvisited.remove(currentNode)
-        currentNode = getShortestUnvisitedNode(distances, unvisited)
+        # Get the next unvisited node with shorted distance.
+        currentNode = heapq.heappop(priorityQueue)[1]
 
     return distances
 
@@ -140,9 +118,7 @@ def part2():
     allRiskLevels = getAllRiskLevels(noOfTiles)
     start = (0,0)
     end = ((gridSize*noOfTiles) - 1, (gridSize*noOfTiles) - 1)
-    # Run Dijkstra on the bigger Risk Levels Grid.
-    # Should return 315 on test input.
     return dijkstra(allRiskLevels, start, end)[end]
 
-print("PART 1:", part1())
+print("PART 1:", dijkstra(riskLevels, (0,0), (gridSize - 1, gridSize - 1))[(gridSize - 1, gridSize - 1)])
 print("PART 2:", part2())
