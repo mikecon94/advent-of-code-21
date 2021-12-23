@@ -1,3 +1,5 @@
+import math
+
 f = open("input", "r")
 
 hexToBin = {
@@ -48,6 +50,7 @@ def parseLiteralValue(binary):
 def parseOperator(binary):
     # Parses from after the Type ID Bit
     lengthTypeId = int(binary[6], 2)
+    outputs = []
     # If Length Type ID = 0
     # The next 15 bits are total length of sub-packets contained by this packet
     if(lengthTypeId == 0):
@@ -58,7 +61,7 @@ def parseOperator(binary):
         parsedTo = 22
         while(parsedTo < (subPacketsLength + 22) ):
             result = parsePacket(binary[parsedTo:])
-            output = result[0]
+            outputs.append(result[0])
             parsedTo += result[1]
 
         parsedTo = 22 + subPacketsLength
@@ -72,14 +75,29 @@ def parseOperator(binary):
         packetsParsed = 0
         while (packetsParsed < noOfSubPackets):
             result = parsePacket(binary[parsedTo:])
-            output = result[0]
+            outputs.append(result[0])
             parsedTo += result[1]
             packetsParsed += 1
 
     # Perform the operation on the outputs of the sub-packets
+    typeId = getTypeId(binary)
+    if(typeId == 0):
+        result = sum(outputs)
+    elif(typeId == 1):
+        result = math.prod(outputs)
+    elif(typeId == 2):
+        result = min(outputs)
+    elif(typeId == 3):
+        result = max(outputs)
+    elif(typeId == 5):
+        result = 1 if outputs[0] > outputs[1] else 0
+    elif(typeId == 6):
+        result = 1 if outputs[0] < outputs[1] else 0
+    elif(typeId == 7):
+        result = 1 if outputs[0] == outputs[1] else 0
 
     # Return operator Output & Bit parsed until
-    return 0, parsedTo
+    return result, parsedTo
 
 sumOfVersions = 0
 def parsePacket(packet):
@@ -102,6 +120,6 @@ def parsePacket(packet):
     # Return Bit Index Packet was parsed to
     return outputValue, parsedTo
 
-parsePacket(binaryInput)
-
-print("Total Versions:",sumOfVersions)
+output = parsePacket(binaryInput)[0]
+print("Part 1:", sumOfVersions)
+print("Part 2:", output)
