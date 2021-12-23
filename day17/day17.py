@@ -60,8 +60,8 @@ def findOptimalShot():
     maxY = -10
     bestVelocity = (0,0)
     hitVelocities = set()
-    for yVelocity in range(-200, 200):
-        for xVelocity in range(-200, 200):
+    for yVelocity in range(-170, 170):
+        for xVelocity in range(0, 130):
             hit, heightReached = fireProbe((xVelocity, yVelocity))
             if(hit):
                 hitVelocities.add((xVelocity, yVelocity))
